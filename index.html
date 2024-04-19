@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript Game Task</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h3 id="goal">Goal</h3>
+        <h3 id="level">Level</h3>
+        <h3 id="attempt">Attempt</h3>
+        <h3 id="remain-attempt">Attempt Left</h3>
+        <h3 id="score">Total Score</h3>
+      </div>
+      <div class="play">
+        <div>
+          <input type="text" value="0" id="goalInp" />
+          <br />
+          <button id="goalBtn">Generate Goal</button>
+        </div>
+        <div>
+          <input type="text" value="0" id="scoreInp" />
+          <br />
+          <button id="scoreBtn">Generate Score</button>
+        </div>
+      </div>
+      <div class="board">
+        <h1>Your Score</h1>
+        <div id="scoreBoard"></div>
+      </div>
+      <div id="message"></div>
+    </div>
+
+    <script src="./index.js"></script>
+  </body>
+</html>
