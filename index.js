@@ -1,23 +1,27 @@
-const goal = document.getElementById("goal");
 const level = document.getElementById("level");
 const attempt = document.getElementById("attempt");
 const remainingAttempt = document.getElementById("remain-attempt");
-const score = document.getElementById("score");
-const goalBtn = document.getElementById("goalBtn");
-const scoreBtn = document.getElementById("scoreBtn");
-const goalInp = document.getElementById("goalInp");
-const scoreInp = document.getElementById("scoreInp");
+const totalScore = document.getElementById("total-score");
+const goal = document.getElementById("goal");
+const playBtn = document.getElementById("playBtn");
+const currentScore = document.getElementById("current-score");
 const scoreBoard = document.getElementById("scoreBoard");
 const message = document.getElementById("message");
 
-let goalValue;
-let levelValue;
-let attemptValue;
-let scoreValue;
-let scoreArray;
-let clicked;
-let maxAttempt;
-let firstTime = true;
+const generateRandom = (upper) => {
+  return Math.floor(Math.random() * upper) + 1;
+};
+
+let goalValue = generateRandom(50);
+let levelValue = 1;
+let attemptValue = 0;
+let scoreValue = 0;
+let scoreArray = [];
+let maxAttempt = generateRandom(15);
+let win = false;
+let loose = false;
+let gameState = "started";
+let number;
 
 const displayBoard = (text) => {
   message.innerText = text;
@@ -39,90 +43,90 @@ const setText = (element, value) => {
   element.innerText = element.innerText.split(": ")[0] + ": " + value;
 };
 
-const setValue = (element, value) => {
-  element.value = value;
-};
-
-const generateRandom = (upper) => {
-  return Math.floor(Math.random() * upper) + 1;
-};
-
-const gameChange = () => {
-  setTimeout(() => {
-    startGame();
-    scoreBoard.innerHTML = "";
-  }, 1 * 2000);
-};
-
-const reset = () => {
-  goalValue = 0;
-  attemptValue = 0;
-  scoreValue = 0;
-  scoreArray = [];
-  clicked = false;
-  maxAttempt = 15;
-};
-
-const startGame = () => {
-  reset();
-  setText(goal, goalValue);
-  if (firstTime) {
-    levelValue = 1;
-    firstTime = false;
-  } else {
-    levelValue++;
-  }
-  setText(level, levelValue);
-  setText(attempt, attemptValue);
-  setText(score, scoreValue);
-  setText(remainingAttempt, maxAttempt - attemptValue);
-  setValue(scoreInp, 0);
-  setValue(goalInp, 0);
-  displayBoard("Game Started");
-};
-
-goalBtn.onclick = () => {
-  if (goalValue > 0) {
-    return;
-  } else {
-    goalValue = generateRandom(50);
-    setText(goal, goalValue);
-    setValue(goalInp, goalValue);
-    displayBoard("Game going");
-    clicked = true;
-  }
-};
-
-scoreBtn.onclick = () => {
-  if (!clicked) return;
-  let number = generateRandom(5);
-  setValue(scoreInp, number);
-  attemptValue++;
-
-  setText(remainingAttempt, maxAttempt - attemptValue);
-  if (number + scoreValue <= goalValue) {
-    const newArray = Array.from({ length: number }, () => ({
-      value: 1,
-      done: false,
-    }));
-    scoreArray = scoreArray.concat(newArray);
-    scoreValue += number;
-    setText(score, scoreValue);
-  }
-
-  if (attemptValue <= maxAttempt) {
-    setText(attempt, attemptValue);
-    if (goalValue == scoreValue && clicked) {
-      displayBoard("You won the game !");
-      gameChange();
-    }
-  } else {
-    firstTime = true;
-    displayBoard("You loose the game !");
-    gameChange();
-  }
-
+const generateAndPrintScoreArray = (scoreArray) => {
+  const newArray = Array.from({ length: number }, () => ({
+    value: 1,
+    done: false,
+  }));
+  scoreArray = scoreArray.concat(newArray);
   printScoreBoard(scoreArray);
 };
 
-startGame();
+const reset = () => {
+  scoreValue = 0;
+  number = 0;
+  attemptValue = 0;
+  maxAttempt = generateRandom(15);
+  goalValue = generateRandom(50);
+  gameState = "loose";
+  scoreBoard.innerHTML = "";
+  playBtn.textContent = "Play";
+};
+
+const common = () => {
+  setText(goal, goalValue);
+  setText(level, levelValue);
+  setText(attempt, attemptValue);
+};
+
+const display = () => {
+  common();
+  setText(currentScore, number);
+};
+
+const gameStart = () => {
+  common();
+  setText(remainingAttempt, maxAttempt);
+  setText(totalScore, scoreValue);
+  displayBoard("Game Started");
+};
+
+gameStart();
+
+playBtn.onclick = () => {
+  number = generateRandom(5);
+  attemptValue++;
+
+  if (win) {
+    reset();
+    win = false;
+  }
+
+  if (loose) {
+    reset();
+    loose = false;
+  }
+
+  if (gameState == "started") {
+    displayBoard("Game Going");
+  } else {
+    displayBoard("Game Started");
+    gameState = "started";
+  }
+  let leftAttempt = maxAttempt - attemptValue;
+
+  display();
+
+  if (scoreValue + number <= goalValue && leftAttempt >= 0) {
+    if (scoreValue + number === goalValue) {
+      levelValue++;
+      win = true;
+      scoreValue += number;
+      displayBoard("You won the game");
+      generateAndPrintScoreArray(scoreArray);
+      playBtn.textContent = "Start Next Level";
+    } else {
+      scoreValue += number;
+      generateAndPrintScoreArray(scoreArray);
+    }
+  }
+
+  if (leftAttempt == 0) {
+    levelValue = 1;
+    loose = true;
+    displayBoard("You loose the game");
+    playBtn.textContent = "Replay";
+  }
+  setText(remainingAttempt, leftAttempt);
+  setText(totalScore, scoreValue);
+};
